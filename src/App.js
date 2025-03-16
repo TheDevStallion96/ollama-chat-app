@@ -113,25 +113,56 @@ const App = () => {
 
     const userMessage = { text: input, isUser: true };
     setMessages(prev => [...prev, userMessage]);
+    
+    // Add an empty AI message that we'll stream text into
+    const aiMessageId = Date.now();
+    setMessages(prev => [...prev, { id: aiMessageId, text: '', isUser: false }]);
+    
     setInput('');
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:3001/api/generate', {
-        model: selectedModel,
-        prompt: input,
-        stream: false
+      // Create an EventSource for SSE connection
+      const eventSource = new EventSource(`http://localhost:3001/api/generate-stream?model=${selectedModel}&prompt=${encodeURIComponent(input)}`);
+      
+      let fullResponse = '';
+      
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.response) {
+            fullResponse += data.response;
+            
+            // Update the AI message with the accumulated response
+            setMessages(prev => 
+              prev.map(msg => 
+                msg.id === aiMessageId 
+                  ? { ...msg, text: fullResponse } 
+                  : msg
+              )
+            );
+          }
+        } catch (error) {
+          console.error('Error parsing SSE message:', error);
+        }
+      };
+      
+      eventSource.onerror = () => {
+        eventSource.close();
+        setIsLoading(false);
+      };
+      
+      eventSource.addEventListener('done', () => {
+        eventSource.close();
+        setIsLoading(false);
       });
-
-      const aiMessage = { text: response.data.response, isUser: false };
-      setMessages(prev => [...prev, aiMessage]);
+      
     } catch (error) {
       console.error('Error generating response:', error);
       setMessages(prev => [...prev, {
         text: "Error generating response. Make sure Ollama is running correctly.",
         isUser: false
       }]);
-    } finally {
       setIsLoading(false);
     }
   };
