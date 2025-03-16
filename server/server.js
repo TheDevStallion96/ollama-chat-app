@@ -35,3 +35,38 @@ app.get('/api/tags', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Proxy server running on http://localhost:${PORT}`);
 });
+
+app.post('/api/generate-stream', async (req, res) => {
+  try {
+    // Set headers for event stream
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    // Make a streaming request to Ollama
+    const response = await axios({
+      method: 'post',
+      url: 'http://localhost:11434/api/generate',
+      data: { ...req.body, stream: true },
+      responseType: 'stream'
+    });
+
+    // Forward the stream to the client
+    response.data.on('data', (chunk) => {
+      const chunkStr = chunk.toString();
+      res.write(`data: ${chunkStr}\n\n`);
+    });
+
+    response.data.on('end', () => {
+      res.end();
+    });
+
+    // Handle client disconnect
+    req.on('close', () => {
+      response.data.destroy();
+    });
+  } catch (error) {
+    console.error('Error streaming from Ollama:', error);
+    res.status(500).json({ error: 'Failed to stream response from Ollama' });
+  }
+});
