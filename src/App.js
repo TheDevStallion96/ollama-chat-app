@@ -88,7 +88,7 @@ const App = () => {
     // Fetch available models from Ollama
     const fetchModels = async () => {
       try {
-        const response = await axios.get('http://localhost:11434/api/tags');
+        const response = await axios.get('http://localhost:3001/api/tags');
         setAvailableModels(response.data.models || []);
       } catch (error) {
         console.error('Error fetching models:', error);
@@ -117,7 +117,7 @@ const App = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:11434/api/generate', {
+      const response = await axios.post('http://localhost:3001/api/generate', {
         model: selectedModel,
         prompt: input,
         stream: false
