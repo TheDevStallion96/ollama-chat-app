@@ -32,9 +32,7 @@ app.get('/api/tags', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Proxy server running on http://localhost:${PORT}`);
-});
+
 
 app.post('/api/generate-stream', async (req, res) => {
   try {
@@ -69,4 +67,8 @@ app.post('/api/generate-stream', async (req, res) => {
     console.error('Error streaming from Ollama:', error);
     res.status(500).json({ error: 'Failed to stream response from Ollama' });
   }
+});
+
+app.listen(PORT, () => {
+  console.log(`Proxy server running on http://localhost:${PORT}`);
 });
