@@ -1,4 +1,3 @@
-// src/App.js
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import styled from 'styled-components';
@@ -80,7 +79,7 @@ const App = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedModel, setSelectedModel] = useState('llama2');
+  const [selectedModel, setSelectedModel] = useState('llama2'); // TODO: Implement some form of react state management here!
   const [availableModels, setAvailableModels] = useState([]);
   const chatEndRef = useRef(null);
 
