@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import styled from 'styled-components';
+import { createShouldForwardProp } from '@styled-system/should-forward-prop';
+
+const shouldForwardProp = createShouldForwardProp((prop) => prop !== 'isUser');
 
 const Container = styled.div`
   max-width: 800px;
@@ -30,7 +33,9 @@ const MessageContainer = styled.div`
   flex-direction: column;
 `;
 
-const Message = styled.div`
+const Message = styled.div.withConfig({
+  shouldForwardProp: (prop) => shouldForwardProp(prop) && prop !== 'isUser'
+})`
   padding: 10px;
   border-radius: 10px;
   max-width: 70%;
@@ -79,7 +84,7 @@ const App = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedModel, setSelectedModel] = useState('llama2'); // TODO: Implement some form of react state management here!
+  const [selectedModel, setSelectedModel] = useState('llama2');
   const [availableModels, setAvailableModels] = useState([]);
   const chatEndRef = useRef(null);
 
@@ -188,7 +193,7 @@ const App = () => {
 
       <ChatContainer>
         {messages.map((message, index) => (
-          <MessageContainer key={index} isUser={message.isUser}>
+          <MessageContainer key={index}>
             <Message isUser={message.isUser}>
               {message.text}
             </Message>
