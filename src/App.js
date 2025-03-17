@@ -34,7 +34,7 @@ const MessageContainer = styled.div`
 `;
 
 const Message = styled.div.withConfig({
-  shouldForwardProp: (prop) => shouldForwardProp(prop) && prop !== 'isUser'
+  shouldForwardProp
 })`
   padding: 10px;
   border-radius: 10px;
